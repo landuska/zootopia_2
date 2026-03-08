@@ -1,17 +1,5 @@
-import json
 import re
-import requests
-
-API_KEY = "d5W8UWMf1j40MmGX7lNVilNkJBgqUU7LVysZsEr3"
-
-
-def load_one_animal(name):
-    """ Load animal_info about one animal """
-
-    url = f'https://api.api-ninjas.com/v1/animals?name={name}'
-    response = requests.get(url, headers={'X-Api-Key': API_KEY})
-    responce_json = response.json()
-    return responce_json
+import data_fetcher
 
 
 def load_html(file_path):
@@ -95,7 +83,7 @@ def user_input(html_page: str):
             print("Please enter animal, not an empty string: ")
             continue
 
-        animals = load_one_animal(user_choice)
+        animals = data_fetcher.fetch_data(user_choice)
 
         if not animals:
             html_with_animals = html_page.replace("__REPLACE_ANIMALS_INFO__",
