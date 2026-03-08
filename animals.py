@@ -3,14 +3,22 @@ import re
 import requests
 
 API_KEY = "d5W8UWMf1j40MmGX7lNVilNkJBgqUU7LVysZsEr3"
-NAME = "Fox"
 
 
-def load_data():
-    """ Load a JSON file """
+def load_one_animal(name):
+    """ Load animal_info about one animal """
 
-    api_url = f'https://api.api-ninjas.com/v1/animals?name={NAME}'
-    response = requests.get(api_url, headers={'X-Api-Key': API_KEY})
+    url = f'https://api.api-ninjas.com/v1/animals?name={name}'
+    response = requests.get(url, headers={'X-Api-Key': API_KEY})
+    responce_json = response.json()
+    return responce_json
+
+
+def load_all_animals():
+    """ Load all animals"""
+
+    url = 'https://api.api-ninjas.com/v1/animals'
+    response = requests.get(url, headers={'X-Api-Key': API_KEY})
     responce_json = response.json()
     return responce_json
 
@@ -83,63 +91,28 @@ def animals_info(animals: list):
     return output
 
 
-def get_skin_types(animals: list):
-    """ Get all skin types"""
-
-    skin_types = set()
-    for animal in animals:
-        characteristics = animal.get("characteristics", {})
-        skin_type = characteristics.get("skin_type", "").strip().lower()
-        if skin_type:
-            skin_types.add(skin_type)
-
-    return skin_types
-
-
-def get_animals_with_skin_type(animals: list, user_choice: str):
-    """ Get all animals with the same skin type """
-
-    animals_with_skin_type = []
-    for animal in animals:
-        characteristics = animal.get("characteristics", {})
-        skin_type = characteristics.get("skin_type", "").strip().lower()
-        if skin_type == user_choice:
-            animals_with_skin_type.append(animal)
-    return animals_with_skin_type
-
-
-def user_input(skin_types: set, html_page: str, animals: list):
-    """ Choice of skin type and write a new HTML page with animals with this skin type
-        or write a new HTML page with all animals
+def user_input(html_page: str):
+    """ Choice of animal and write a new HTML page with it
+    or write a new HTML page with all animals
     """
 
     while True:
         user_choice = input(
-            f"Please enter animals skin_type from {skin_types} or 'all' if you want sea all animals: ").strip().lower()
+            f"Please enter an animal you want to see: ").strip().lower()
 
         if not user_choice:
-            print("Please enter animals skin_type, not an empty string: ")
+            print("Please enter animal, not an empty string: ")
             continue
 
-        if user_choice in skin_types:
-            animals_with_skin_type = get_animals_with_skin_type(animals, user_choice)
-            html_with_animals = html_page.replace("__REPLACE_ANIMALS_INFO__", animals_info(animals_with_skin_type))
-            save_html("../zootopia_2/animals_2.html", html_with_animals)
-            return
-        elif user_choice == "all":
-            html_with_animals = html_page.replace("__REPLACE_ANIMALS_INFO__", animals_info(animals))
-            save_html("../zootopia_2/animals_2.html", html_with_animals)
-            return
-        else:
-            print(f"Your skin_type is not in {skin_types}")
-            continue
+        animals = load_one_animal(user_choice)
+        html_with_animals = html_page.replace("__REPLACE_ANIMALS_INFO__", animals_info(animals))
+        save_html("../zootopia_2/animals_2.html", html_with_animals)
+        return
 
 
 def main():
-    animals_data = load_data()
-    set_of_skin_types = get_skin_types(animals_data)
     html_page = load_html("../zootopia_2/animals_template_2.html")
-    user_input(set_of_skin_types, html_page, animals_data)
+    user_input(html_page)
 
 
 if __name__ == "__main__":
