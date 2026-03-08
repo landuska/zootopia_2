@@ -14,15 +14,6 @@ def load_one_animal(name):
     return responce_json
 
 
-def load_all_animals():
-    """ Load all animals"""
-
-    url = 'https://api.api-ninjas.com/v1/animals'
-    response = requests.get(url, headers={'X-Api-Key': API_KEY})
-    responce_json = response.json()
-    return responce_json
-
-
 def load_html(file_path):
     """ Load a HTML file """
 
@@ -105,9 +96,16 @@ def user_input(html_page: str):
             continue
 
         animals = load_one_animal(user_choice)
-        html_with_animals = html_page.replace("__REPLACE_ANIMALS_INFO__", animals_info(animals))
-        save_html("../zootopia_2/animals_2.html", html_with_animals)
-        return
+
+        if not animals:
+            html_with_animals = html_page.replace("__REPLACE_ANIMALS_INFO__",
+                                                  f"<h2>The animal {user_choice} does not exist.</h2>")
+            save_html("../zootopia_2/animals_2.html", html_with_animals)
+            return
+        else:
+            html_with_animals = html_page.replace("__REPLACE_ANIMALS_INFO__", animals_info(animals))
+            save_html("../zootopia_2/animals_2.html", html_with_animals)
+            return
 
 
 def main():
